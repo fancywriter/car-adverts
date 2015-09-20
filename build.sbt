@@ -11,6 +11,7 @@ libraryDependencies ++= Seq(
   cache,
   ws,
   filters,
+  "com.amazonaws" % "aws-java-sdk-dynamodb" % "1.10.20",
   specs2 % Test
 )
 

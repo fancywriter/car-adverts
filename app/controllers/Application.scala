@@ -2,15 +2,17 @@ package controllers
 
 import java.time.LocalDate
 import java.util.UUID
+import javax.inject.Inject
 
-import models.{Fuel, CarAdvert}
+import db.CarAdvertDb
 import models.Fuel.Fuel
+import models.{CarAdvert, Fuel}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json._
 import play.api.mvc._
 
-class Application extends Controller {
+class Application @Inject()(db: CarAdvertDb) extends Controller {
 
   implicit val advertWrites: Writes[CarAdvert] = (
     (JsPath \ "id").writeNullable[UUID] and
@@ -41,35 +43,29 @@ class Application extends Controller {
 
   def getAdverts(sort: String) = Action {
     // TODO add sorting
-    Ok(Json.toJson(CarAdvert.adverts))
+    Ok(Json.toJson(db.getAdverts))
   }
 
   def getAdvert(id: UUID) = Action {
-    CarAdvert.adverts.find(_.id == id).fold(NotFound("Not Found"))(a => Ok(Json.toJson(a)))
+    db.getAdvert(id).fold(NotFound("Not Found"))(a => Ok(Json.toJson(a)))
   }
 
   def createAdvert() = Action(BodyParsers.parse.json) { request =>
     request.body.validate[CarAdvert].fold(errors => BadRequest(JsError.toJson(errors)), { a: CarAdvert =>
-      val a1 = CarAdvert(Some(UUID.randomUUID()), a.title, a.fuel, a.price, a.`new`, a.mileage, a.firstRegistration)
-      CarAdvert.adverts += a1
-      Ok(Json.toJson(a1))
+      Ok(Json.toJson(db.createAdvert(a)))
     })
   }
 
-  def modifyAdvert(id: UUID) = Action(BodyParsers.parse.json)  { request =>
+  def modifyAdvert(id: UUID) = Action(BodyParsers.parse.json) { request =>
     request.body.validate[CarAdvert].fold(errors => BadRequest(JsError.toJson(errors)), { a: CarAdvert =>
-      CarAdvert.adverts.find(_.id == id).map(CarAdvert.adverts -= _)
-      val a1 = CarAdvert(Some(id), a.title, a.fuel, a.price, a.`new`, a.mileage, a.firstRegistration)
-      CarAdvert.adverts += a1
-      Ok(Json.toJson(a1))
+      db.modifyAdvert(id, a)
+      Ok(Json.toJson(""))
     })
   }
 
   def deleteAdvert(id: UUID) = Action {
-    CarAdvert.adverts.find(_.id == id).fold(NotFound("Not Found")) { a =>
-      CarAdvert.adverts -= a
-      Ok(Json.toJson(a))
-    }
+    db.deleteAdvert(id)
+    Ok(Json.toJson(""))
   }
 
 }
