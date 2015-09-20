@@ -12,7 +12,9 @@ libraryDependencies ++= Seq(
   ws,
   filters,
   "com.amazonaws" % "aws-java-sdk-dynamodb" % "1.10.20",
-  specs2 % Test
+  "com.typesafe.slick" %% "slick" % "3.0.3",
+  "net.java.truecommons" % "truecommons-shed" % "2.5.0",
+   specs2 % Test
 )
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"

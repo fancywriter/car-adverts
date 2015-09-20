@@ -4,7 +4,7 @@ import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 
-import db.CarAdvertDb
+import db.CarAdvertSql
 import models.Fuel.Fuel
 import models.{CarAdvert, Fuel}
 import play.api.libs.functional.syntax._
@@ -12,7 +12,9 @@ import play.api.libs.json.Reads._
 import play.api.libs.json._
 import play.api.mvc._
 
-class Application @Inject()(db: CarAdvertDb) extends Controller {
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+
+class Application @Inject()(db: CarAdvertSql) extends Controller {
 
   implicit val advertWrites: Writes[CarAdvert] = (
     (JsPath \ "id").writeNullable[UUID] and
@@ -47,13 +49,12 @@ class Application @Inject()(db: CarAdvertDb) extends Controller {
     }
   }
 
-  def getAdverts(sort: String) = Action {
-    // TODO add sorting
-    Ok(Json.toJson(db.getAdverts))
+  def getAdverts(sort: String) = Action.async {
+    db.getAdverts(sort).map(s => Ok(Json.toJson(s)))
   }
 
-  def getAdvert(id: UUID) = Action {
-    db.getAdvert(id).fold(NotFound("Not Found"))(a => Ok(Json.toJson(a)))
+  def getAdvert(id: UUID) = Action.async {
+    db.getAdvert(id).map(_.fold(NotFound("Not Found"))(a => Ok(Json.toJson(a))))
   }
 
   def createAdvert() = Action(BodyParsers.parse.json) { request =>
