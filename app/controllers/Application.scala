@@ -31,15 +31,21 @@ class Application @Inject()(db: CarAdvertDb) extends Controller {
     }
   }
 
-  implicit val advertReads: Reads[CarAdvert] = (
-    (JsPath \ "id").readNullable[UUID] and
-      (JsPath \ "title").read[String] and
-      (JsPath \ "fuel").read[Fuel] and
-      (JsPath \ "price").read[Int] and
-      (JsPath \ "new").read[Boolean] and
-      (JsPath \ "mileage").readNullable[Int] and
-      (JsPath \ "firstRegistration").readNullable[LocalDate]
-    )(CarAdvert.apply _)
+  implicit val advertReads = new Reads[CarAdvert]() {
+    override def reads(json: JsValue) = {
+      val id = (json \ "id").asOpt[String].map(UUID.fromString)
+      val title = (json \ "title").as[String]
+      val fuel = Fuel.withName((json \ "fuel").as[String])
+      val price = (json \ "price").as[Int]
+      val `new` = (json \ "new").as[Boolean]
+      val mileage = (json \ "mileage").asOpt[Int]
+      val firstRegistration = (json \ "firstRegistration").asOpt[LocalDate]
+      if (`new` && (mileage.isDefined || firstRegistration.isDefined))
+        JsError("'mileage' and 'firstRegistration' can be defined only for used cars!")
+      else
+        JsSuccess(CarAdvert(id, title, fuel, price, `new`, mileage, firstRegistration))
+    }
+  }
 
   def getAdverts(sort: String) = Action {
     // TODO add sorting

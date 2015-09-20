@@ -62,7 +62,7 @@ class CarAdvertDb {
       new AttributeUpdate("new").put(a.`new`),
       mileageUpdate,
       registrationUpdate
-    ))).getItem
+    )))
   }
 
   def deleteAdvert(id: UUID) = table.deleteItem("id", id.toString)
@@ -77,8 +77,8 @@ class CarAdvertDb {
     val fuel = Fuel.withName(item.getString("fuel"))
     val price = item.getInt("price")
     val `new` = item.getBoolean("new")
-    val mileage = if (`new`) None else Some(item.getInt("mileage"))
-    val firstRegistration = if (`new`) None else Some(LocalDate.parse(item.getString("firstRegistration")))
+    val mileage = Option(item.get("mileage")).map(_.asInstanceOf[Number].intValue())
+    val firstRegistration = Option(item.get("firstRegistration")).map(_.toString).map(LocalDate.parse)
     CarAdvert(id, title, fuel, price, `new`, mileage, firstRegistration)
   }
 }
