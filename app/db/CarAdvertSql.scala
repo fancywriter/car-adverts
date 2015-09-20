@@ -6,10 +6,9 @@ import java.util.UUID
 import models.{CarAdvert, Fuel}
 import net.java.truecommons.shed.ResourceLoan._
 import slick.driver.H2Driver.api._
-import scala.concurrent.duration._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 
 class CarAdvertSql {
 
@@ -41,17 +40,15 @@ class CarAdvertSql {
 
   def getAdverts(sort: String): Future[Seq[CarAdvert]] = {
     loan(database) to { db =>
-//      db.run(adverts.sortBy(x => sort match {
-//        case "title" => x.title
-//        case "fuel" => x.fuel
-//        case "price" => x.price
-//        case "new" => x.`new`
-//        case "mileage" => x.mileage
-//        case "firstRegistration" => x.firstRegistration
-//        case _ => x.id
-//      }).result).map(_.map(fromTableRow))
-
-      db.run(adverts.result.map(_.map(fromTableRow)))
+      db.run(adverts.sortBy(x => sort match {
+        case "title" => x.title.asc
+        case "fuel" => x.fuel.asc
+        case "price" => x.price.asc
+        case "new" => x.`new`.asc
+        case "mileage" => x.mileage.asc
+        case "firstRegistration" => x.firstRegistration.asc
+        case _ => x.id.asc
+      }).result).map(_.map(fromTableRow))
     }
   }
 
