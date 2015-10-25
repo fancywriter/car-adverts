@@ -7,14 +7,12 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 scalaVersion := "2.11.6"
 
 libraryDependencies ++= Seq(
-  jdbc,
   cache,
   ws,
   filters,
-  "com.amazonaws" % "aws-java-sdk-dynamodb" % "1.10.20",
-  "com.typesafe.slick" %% "slick" % "3.0.3",
-  "net.java.truecommons" % "truecommons-shed" % "2.5.0",
-   specs2 % Test
+  "com.typesafe.play" %% "play-slick-evolutions" % "1.1.1",
+  "com.h2database" % "h2" % "1.4.190",
+    specs2 % Test
 )
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
@@ -23,5 +21,4 @@ resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 // other, legacy style, accesses its actions statically.
 routesGenerator := InjectedRoutesGenerator
 
-
-fork in run := true
+//fork in run := true
