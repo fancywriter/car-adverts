@@ -12,3 +12,4 @@ object Fuel extends Enumeration {
 
 case class CarAdvert(id: Option[UUID], title: String, fuel: Fuel, price: Int, `new`: Boolean, mileage: Option[Int],
                      firstRegistration: Option[LocalDate])
+
