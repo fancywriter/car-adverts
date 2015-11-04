@@ -41,5 +41,4 @@ package object controllers {
     }
   }
 
-
 }

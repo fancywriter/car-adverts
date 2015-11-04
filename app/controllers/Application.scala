@@ -1,18 +1,16 @@
 package controllers
 
-import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 
 import dao.CarAdvertDao
-import models.Fuel.Fuel
-import models.{CarAdvert, Fuel}
-import play.api.libs.functional.syntax._
-import play.api.libs.json.Reads._
+import models.CarAdvert
+import play.api.data.validation.ValidationError
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
 import play.api.mvc._
 
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import scala.concurrent.Future
 
 class Application @Inject()(dao: CarAdvertDao) extends Controller {
 
@@ -24,22 +22,22 @@ class Application @Inject()(dao: CarAdvertDao) extends Controller {
     dao.getAdvert(id).map(_.fold(NotFound("Not Found"))(a => Ok(Json.toJson(a))))
   }
 
-  def createAdvert() = Action(BodyParsers.parse.json) { request =>
-    request.body.validate[CarAdvert].fold(errors => BadRequest(JsError.toJson(errors)), { a: CarAdvert =>
-      Ok(Json.toJson(dao.createAdvert(a)))
+  def createAdvert() = Action.async(BodyParsers.parse.json) { request =>
+    request.body.validate[CarAdvert].fold(badRequest, { a: CarAdvert =>
+      dao.createAdvert(a) map (x => Ok(Json.toJson(x)))
     })
   }
 
-  def modifyAdvert(id: UUID) = Action(BodyParsers.parse.json) { request =>
-    request.body.validate[CarAdvert].fold(errors => BadRequest(JsError.toJson(errors)), { a: CarAdvert =>
-      dao.modifyAdvert(id, a)
-      Ok(Json.toJson(""))
+  def modifyAdvert(id: UUID) = Action.async(BodyParsers.parse.json) { request =>
+    request.body.validate[CarAdvert].fold(badRequest, { a: CarAdvert =>
+      dao.modifyAdvert(id, a) map (x => Ok(Json.toJson(x)))
     })
   }
 
-  def deleteAdvert(id: UUID) = Action {
-    dao.deleteAdvert(id)
-    Ok(Json.toJson(""))
+  def deleteAdvert(id: UUID) = Action.async {
+    dao.deleteAdvert(id) map (x => Ok(Json.toJson(x)))
   }
+
+  private def badRequest(errors: Seq[(JsPath, Seq[ValidationError])]) = Future(BadRequest(JsError.toJson(errors)))
 
 }

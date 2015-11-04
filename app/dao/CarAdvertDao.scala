@@ -11,6 +11,8 @@ import slick.driver.JdbcProfile
 
 import scala.concurrent.Future
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 class CarAdvertDao @Inject()(val dbConfigProvider: DatabaseConfigProvider) extends HasDatabaseConfigProvider[JdbcProfile] {
 
   import driver.api._
@@ -52,18 +54,16 @@ class CarAdvertDao @Inject()(val dbConfigProvider: DatabaseConfigProvider) exten
 
   def getAdvert(id: UUID): Future[Option[CarAdvert]] = db.run(adverts.filter(_.id === id).result.headOption)
 
-  def modifyAdvert(id: UUID, a: CarAdvert) = {
+  def modifyAdvert(id: UUID, a: CarAdvert): Future[Int] = {
     val a1 = a.copy(id = Some(id))
     db.run(adverts.filter(_.id === id).update(a1))
   }
 
-  def createAdvert(a: CarAdvert) = {
-    val id = UUID.randomUUID()
-    val a1 = a.copy(id = Some(id))
-    db.run(adverts += a1)
-    a1
+  def createAdvert(a: CarAdvert): Future[CarAdvert] = {
+    val a1 = a.copy(id = Some(UUID.randomUUID()))
+    db.run(adverts += a1).map(_ => a1)
   }
 
-  def deleteAdvert(id: UUID) = db.run(adverts.filter(_.id === id).delete)
+  def deleteAdvert(id: UUID): Future[Int] = db.run(adverts.filter(_.id === id).delete)
 
 }

@@ -37,8 +37,6 @@ class ApplicationSpec extends Specification {
       val resp1 = route(FakeRequest(POST, "/adverts").withJsonBody(Json.toJson(advert))).get
 
       status(resp1) must equalTo(OK)
-      // TODO ugly, replace in future
-      Thread.sleep(100)
 
       val resp2 = route(FakeRequest(GET, "/adverts")).get
       status(resp2) must equalTo(OK)
