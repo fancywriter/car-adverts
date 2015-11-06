@@ -1,5 +1,6 @@
-This is your new Play application
-=================================
+Scala example with playframework and slick
+==========================================
+[![Build Status](https://travis-ci.org/kozlov-p-v/car-adverts.svg?branch=master)](https://travis-ci.org/kozlov-p-v/car-adverts)
 
 This file will be packaged with your application, when using `activator dist`.
 
@@ -23,4 +24,3 @@ All adverts have the following fields:
  - firstRegistration (local date, optional) - only for used cars (new = false)
 
 Application uses H2 embedded database in-memory. No need to prepare anything.
-
