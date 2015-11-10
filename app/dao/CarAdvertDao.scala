@@ -17,7 +17,6 @@ class CarAdvertDao @Inject()(val dbConfigProvider: DatabaseConfigProvider) exten
 
   import driver.api._
 
-  implicit val uuidColumn = MappedColumnType.base[UUID, String](_.toString, UUID.fromString)
   implicit val localDateColumn = MappedColumnType.base[LocalDate, String](_.toString, LocalDate.parse)
   implicit val fuelColumn = MappedColumnType.base[Fuel, String](_.toString, Fuel.withName)
 

@@ -1,6 +1,6 @@
 # --- !Ups
 CREATE TABLE CAR_ADVERT (
-    id varchar PRIMARY KEY,
+    id UUID PRIMARY KEY,
     title varchar NOT NULL,
     fuel varchar NOT NULL,
     price varchar NOT NULL,
