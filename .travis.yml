@@ -7,4 +7,6 @@ addons:
     apt:
         packages:
             - oracle-java8-installer
+script: "sbt clean coverage test"
+after_success: "sbt coveralls"
 

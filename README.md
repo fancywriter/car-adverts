@@ -1,8 +1,7 @@
 Scala example with playframework and slick
 ==========================================
 [![Build Status](https://travis-ci.org/kozlov-p-v/car-adverts.svg?branch=master)](https://travis-ci.org/kozlov-p-v/car-adverts)
-
-This file will be packaged with your application, when using `activator dist`.
+[![Coverage Status](https://coveralls.io/repos/kozlov-p-v/car-adverts/badge.png?branch=master)](https://coveralls.io/r/kozlov-p-v/car-adverts)
 
 # Car Adverts RESTful service
 To run application just type "sbt run"
@@ -24,3 +23,4 @@ All adverts have the following fields:
  - firstRegistration (local date, optional) - only for used cars (new = false)
 
 Application uses H2 embedded database in-memory. No need to prepare anything.
+
