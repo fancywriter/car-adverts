@@ -13,8 +13,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-slick-evolutions" % "1.1.1",
   "com.h2database" % "h2" % "1.4.190",
   "org.scoverage" %% "scalac-scoverage-runtime" % "1.1.1",
-  specs2 % Test,
-  "org.scalatest" %% "scalatest" % "2.2.4" % Test
+  "org.scalatest" %% "scalatest" % "2.2.4" % Test,
+  "org.scalatestplus" %% "play" % "1.4.0-M3" % Test
 )
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
