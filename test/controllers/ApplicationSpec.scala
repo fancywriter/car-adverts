@@ -1,5 +1,7 @@
 package controllers
 
+import java.util.UUID
+
 import models._
 import play.api.http.MimeTypes
 import play.api.libs.json.Json
@@ -73,6 +75,32 @@ class ApplicationSpec extends BaseSpec {
       status(resp3) mustEqual OK
       contentType(resp3) mustBe Some(MimeTypes.JSON)
       contentAsJson(resp3).as[CarAdvert].title mustEqual newAdvert.title
+    }
+
+    "throw bad request for empty body" in {
+      val resp1 = route(FakeRequest(POST, "/adverts").withJsonBody(Json.obj())).value
+      status(resp1) mustBe BAD_REQUEST
+
+      val resp2 = route(FakeRequest(PUT, "/adverts/" + UUID.randomUUID()).withJsonBody(Json.obj())).value
+      status(resp2) mustBe BAD_REQUEST
+    }
+
+    "throw bad request for unknown fuel" in {
+      val body = Json.obj("title" -> "BMW", "fuel" -> "Water", "price" -> 10000, "new" -> false)
+      val resp = route(FakeRequest(POST, "/adverts").withJsonBody(body)).value
+      status(resp) mustBe BAD_REQUEST
+    }
+
+    "throw bad request for nonempty mileage on new cars" in {
+      val body = Json.obj("title" -> "BMW", "fuel" -> "Gasoline", "price" -> 10000, "new" -> true, "mileage" -> 1000)
+      val resp = route(FakeRequest(POST, "/adverts").withJsonBody(body)).value
+      status(resp) mustBe BAD_REQUEST
+    }
+
+    "throw bad request for nonempty registration on new cars" in {
+      val body = Json.obj("title" -> "BMW", "fuel" -> "Gasoline", "price" -> 10000, "new" -> true, "firstRegistration" -> "2015-01-01")
+      val resp = route(FakeRequest(POST, "/adverts").withJsonBody(body)).value
+      status(resp) mustBe BAD_REQUEST
     }
   }
 }
