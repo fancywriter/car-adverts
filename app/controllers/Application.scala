@@ -38,6 +38,6 @@ class Application @Inject()(dao: CarAdvertDao) extends Controller {
     dao.deleteAdvert(id) map (x => Ok(Json.toJson(x)))
   }
 
-  private def badRequest(errors: Seq[(JsPath, Seq[ValidationError])]) = Future(BadRequest(JsError.toJson(errors)))
+  private[this] def badRequest(errors: Seq[(JsPath, Seq[ValidationError])]) = Future(BadRequest(JsError.toJson(errors)))
 
 }

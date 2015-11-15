@@ -25,5 +25,12 @@ resolvers += Resolver.url("Typesafe Ivy releases", url("https://repo.typesafe.co
 // other, legacy style, accesses its actions statically.
 routesGenerator := InjectedRoutesGenerator
 
-//fork in run := true
+fork in run := true
+
 coverageEnabled := true
+
+coverageExcludedPackages := "<empty>;controllers.javascript.*;router.*;"
+
+coverageMinimum := 85
+
+coverageFailOnMinimum := true
