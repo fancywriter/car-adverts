@@ -1,6 +1,9 @@
 package dao
 
+import java.time.LocalDate
+
 import models.{CarAdvert, Fuel}
+import org.scalatest.enablers.Sortable
 import org.scalatest.time.{Millis, Seconds, Span}
 import play.api.Application
 import utils.BaseSpec
@@ -47,6 +50,67 @@ class CarAdvertDaoSpec extends BaseSpec {
           .flatMap(_ => dao.getAdvert(a.id.get))
       }
       whenReady(f)(opt => opt.value.title mustEqual newAdvert.title)
+    }
+
+    "sort by price" in {
+      val advert1 = CarAdvert(None, "BMW", Fuel.Gasoline, 1000, `new` = false, None, None)
+      val advert2 = CarAdvert(None, "Skoda", Fuel.Gasoline, 2000, `new` = false, None, None)
+
+      val f1 = dao.createAdvert(advert1)
+      val f2 = dao.createAdvert(advert2)
+
+      val f3 = for {
+        _ <- f1
+        _ <- f2
+        x <- dao.getAdverts("price")
+      } yield x
+
+      implicit val sortable = new Sortable[Seq[CarAdvert]] {
+        override def isSorted(seq: Seq[CarAdvert]) = (seq, seq.tail).zipped.forall(_.price <= _.price)
+      }
+
+      whenReady(f3) { adverts => adverts mustBe sorted }
+    }
+
+    "sort by mileage" in {
+      val advert1 = CarAdvert(None, "BMW", Fuel.Gasoline, 1000, `new` = false, Some(10000), None)
+      val advert2 = CarAdvert(None, "Skoda", Fuel.Gasoline, 2000, `new` = false, Some(5000), None)
+
+      val f1 = dao.createAdvert(advert1)
+      val f2 = dao.createAdvert(advert2)
+
+      val f3 = for {
+        _ <- f1
+        _ <- f2
+        x <- dao.getAdverts("mileage")
+      } yield x
+
+      implicit val sortable = new Sortable[Seq[CarAdvert]] {
+        override def isSorted(seq: Seq[CarAdvert]) = (seq, seq.tail).zipped.forall(_.mileage.value <= _.mileage.value)
+      }
+
+      whenReady(f3) ( adverts => adverts mustBe sorted )
+    }
+
+    "sort by first registration" in {
+      val advert1 = CarAdvert(None, "BMW", Fuel.Gasoline, 1000, `new` = false, None, Some(LocalDate.of(2015, 1, 1)))
+      val advert2 = CarAdvert(None, "Skoda", Fuel.Gasoline, 2000, `new` = false, None, Some(LocalDate.of(2015, 2, 2)))
+
+      val f1 = dao.createAdvert(advert1)
+      val f2 = dao.createAdvert(advert2)
+
+      val f3 = for {
+        _ <- f1
+        _ <- f2
+        x <- dao.getAdverts("firstRegistration")
+      } yield x
+
+      implicit val sortable = new Sortable[Seq[CarAdvert]] {
+        override def isSorted(seq: Seq[CarAdvert]) = (seq, seq.tail).zipped
+          .forall((a1, a2) => a1.firstRegistration.value.compareTo(a2.firstRegistration.value) <= 0)
+      }
+
+      whenReady(f3) { adverts => adverts mustBe sorted }
     }
 
   }

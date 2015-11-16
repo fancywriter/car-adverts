@@ -43,9 +43,7 @@ class CarAdvertDao @Inject()(val dbConfigProvider: DatabaseConfigProvider) exten
   def getAdverts(sort: String): Future[Seq[CarAdvert]] =
     db.run(adverts.sortBy(x => sort match {
       case "title" => x.title.asc
-      case "fuel" => x.fuel.asc
       case "price" => x.price.asc
-      case "new" => x.`new`.asc
       case "mileage" => x.mileage.asc
       case "firstRegistration" => x.firstRegistration.asc
       case _ => x.id.asc
