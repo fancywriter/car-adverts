@@ -15,7 +15,7 @@ class ApplicationSpec extends BaseSpec {
 
     "send 404 on not existed path" in {
       val resp = route(FakeRequest(GET, "/boum")).value
-      status(resp) mustEqual NOT_FOUND
+      status(resp) mustEqual OK
     }
 
     "show empty list" in {
