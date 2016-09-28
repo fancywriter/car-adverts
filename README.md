@@ -1,7 +1,7 @@
 Scala example with playframework and slick
 ==========================================
-[![Build Status](https://travis-ci.org/kozlov-p-v/car-adverts.svg?branch=master)](https://travis-ci.org/kozlov-p-v/car-adverts)
-[![Coverage Status](https://coveralls.io/repos/kozlov-p-v/car-adverts/badge.png?branch=master)](https://coveralls.io/r/kozlov-p-v/car-adverts)
+[![Build Status](https://travis-ci.org/p-kozlov/car-adverts.svg?branch=master)](https://travis-ci.org/p-kozlov/car-adverts)
+[![Coverage Status](https://coveralls.io/repos/p-kozlov/car-adverts/badge.png?branch=master)](https://coveralls.io/r/p-kozlov/car-adverts)
 
 # Car Adverts RESTful service
 To run application just type "sbt run"
