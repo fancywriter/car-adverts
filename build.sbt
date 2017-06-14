@@ -4,17 +4,17 @@ version := "1.0-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.11.11"
 
 libraryDependencies ++= Seq(
   cache,
   ws,
   filters,
-  "com.typesafe.play" %% "play-slick-evolutions" % "1.1.1",
-  "com.h2database" % "h2" % "1.4.192",
-  "org.scoverage" %% "scalac-scoverage-runtime" % "1.2.0",
-  "org.scalatest" %% "scalatest" % "2.2.6" % Test,
-  "org.scalatestplus" %% "play" % "1.4.0" % Test
+  "com.typesafe.play" %% "play-slick-evolutions" % "2.1.0",
+  "com.h2database" % "h2" % "1.4.196",
+  "org.scoverage" %% "scalac-scoverage-runtime" % "1.3.0",
+  "org.scalatest" %% "scalatest" % "3.0.3" % Test,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0" % Test
 )
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"

@@ -1,12 +1,14 @@
 language: scala
+
 scala:
-    - 2.11.8
+    - 2.11.11
+
 jdk:
     - oraclejdk8
-addons:
-    apt:
-        packages:
-            - oracle-java8-installer
-script: "sbt clean coverage test"
+
+script:
+  - sbt clean coverage test coverageReport coverageAggregate
+
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - codecov
+
