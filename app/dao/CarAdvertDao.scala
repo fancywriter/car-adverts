@@ -4,38 +4,38 @@ import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 
-import models.{Fuel, CarAdvert}
+import models.{CarAdvert, Fuel}
 import models.Fuel.Fuel
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
-import slick.driver.JdbcProfile
+import slick.jdbc.JdbcProfile
+import slick.lifted.ProvenShape
 
 import scala.concurrent.Future
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class CarAdvertDao @Inject()(val dbConfigProvider: DatabaseConfigProvider) extends HasDatabaseConfigProvider[JdbcProfile] {
 
-  import driver.api._
+  import profile.api._
 
-  implicit val localDateColumn = MappedColumnType.base[LocalDate, String](_.toString, LocalDate.parse)
-  implicit val fuelColumn = MappedColumnType.base[Fuel, String](_.toString, Fuel.withName)
+  implicit val localDateColumn: BaseColumnType[LocalDate] = MappedColumnType.base[LocalDate, String](_.toString, LocalDate.parse)
+  implicit val fuelColumn: BaseColumnType[Fuel] = MappedColumnType.base[Fuel, String](_.toString, Fuel.withName)
 
   class CarAdverts(tag: Tag) extends Table[CarAdvert](tag, "CAR_ADVERT") {
-    def id = column[Option[UUID]]("ID", O.PrimaryKey)
+    def id: Rep[Option[UUID]] = column[Option[UUID]]("ID", O.PrimaryKey)
 
-    def title = column[String]("TITLE")
+    def title: Rep[String] = column[String]("TITLE")
 
-    def fuel = column[Fuel]("FUEL")
+    def fuel: Rep[Fuel] = column[Fuel]("FUEL")
 
-    def price = column[Int]("PRICE")
+    def price: Rep[Int] = column[Int]("PRICE")
 
-    def `new` = column[Boolean]("NEW")
+    def `new`: Rep[Boolean] = column[Boolean]("NEW")
 
-    def mileage = column[Option[Int]]("MILEAGE")
+    def mileage: Rep[Option[Int]] = column[Option[Int]]("MILEAGE")
 
-    def firstRegistration = column[Option[LocalDate]]("FIRST_REGISTRATION")
+    def firstRegistration: Rep[Option[LocalDate]] = column[Option[LocalDate]]("FIRST_REGISTRATION")
 
-    override def * = (id, title, fuel, price, `new`, mileage, firstRegistration) <>(CarAdvert.tupled, CarAdvert.unapply)
+    override def * : ProvenShape[CarAdvert] = (id, title, fuel, price, `new`, mileage, firstRegistration) <>(CarAdvert.tupled, CarAdvert.unapply)
   }
 
   private val adverts = TableQuery[CarAdverts]

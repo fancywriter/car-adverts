@@ -14,7 +14,7 @@ class CarAdvertDaoSpec extends BaseSpec {
 
   implicit val patience = PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
 
-  def dao(implicit app: Application) = app.injector.instanceOf[CarAdvertDao]
+  def dao(implicit app: Application): CarAdvertDao = app.injector.instanceOf[CarAdvertDao]
 
   "CarAdvertDao" should {
 
@@ -66,7 +66,7 @@ class CarAdvertDaoSpec extends BaseSpec {
       } yield x
 
       implicit val sortable = new Sortable[Seq[CarAdvert]] {
-        override def isSorted(seq: Seq[CarAdvert]) = (seq, seq.tail).zipped.forall(_.price <= _.price)
+        override def isSorted(seq: Seq[CarAdvert]): Boolean = (seq, seq.tail).zipped.forall(_.price <= _.price)
       }
 
       whenReady(f3) { adverts => adverts mustBe sorted }
@@ -86,10 +86,10 @@ class CarAdvertDaoSpec extends BaseSpec {
       } yield x
 
       implicit val sortable = new Sortable[Seq[CarAdvert]] {
-        override def isSorted(seq: Seq[CarAdvert]) = (seq, seq.tail).zipped.forall(_.mileage.value <= _.mileage.value)
+        override def isSorted(seq: Seq[CarAdvert]): Boolean = (seq, seq.tail).zipped.forall(_.mileage.value <= _.mileage.value)
       }
 
-      whenReady(f3) ( adverts => adverts mustBe sorted )
+      whenReady(f3)(adverts => adverts mustBe sorted)
     }
 
     "sort by first registration" in {
@@ -106,7 +106,7 @@ class CarAdvertDaoSpec extends BaseSpec {
       } yield x
 
       implicit val sortable = new Sortable[Seq[CarAdvert]] {
-        override def isSorted(seq: Seq[CarAdvert]) = (seq, seq.tail).zipped
+        override def isSorted(seq: Seq[CarAdvert]): Boolean = (seq, seq.tail).zipped
           .forall((a1, a2) => a1.firstRegistration.value.compareTo(a2.firstRegistration.value) <= 0)
       }
 

@@ -14,27 +14,27 @@ import scala.concurrent.Future
 
 class Application @Inject()(dao: CarAdvertDao) extends Controller {
 
-  def getAdverts(sort: String) = Action.async {
+  def getAdverts(sort: String): Action[AnyContent] = Action.async {
     dao.getAdverts(sort).map(s => Ok(Json.toJson(s)))
   }
 
-  def getAdvert(id: UUID) = Action.async {
+  def getAdvert(id: UUID): Action[AnyContent] = Action.async {
     dao.getAdvert(id).map(_.fold(NotFound("Not Found"))(a => Ok(Json.toJson(a))))
   }
 
-  def createAdvert() = Action.async(BodyParsers.parse.json) { request =>
+  def createAdvert(): Action[JsValue] = Action.async(BodyParsers.parse.json) { request =>
     request.body.validate[CarAdvert].fold(badRequest, { a: CarAdvert =>
       dao.createAdvert(a) map (x => Ok(Json.toJson(x)))
     })
   }
 
-  def modifyAdvert(id: UUID) = Action.async(BodyParsers.parse.json) { request =>
+  def modifyAdvert(id: UUID): Action[JsValue] = Action.async(BodyParsers.parse.json) { request =>
     request.body.validate[CarAdvert].fold(badRequest, { a: CarAdvert =>
       dao.modifyAdvert(id, a) map (x => Ok(Json.toJson(x)))
     })
   }
 
-  def deleteAdvert(id: UUID) = Action.async {
+  def deleteAdvert(id: UUID): Action[AnyContent] = Action.async {
     dao.deleteAdvert(id) map (x => Ok(Json.toJson(x)))
   }
 
