@@ -8,8 +8,9 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.api.test._
 import utils.BaseSpec
+import formats.CarAdvertFormats._
 
-class ApplicationSpec extends BaseSpec {
+class CarAdvertsControllerSpec extends BaseSpec {
 
   "Application" should {
 

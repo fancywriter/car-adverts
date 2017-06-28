@@ -4,21 +4,19 @@ import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 
-import models.{CarAdvert, Fuel}
-import models.Fuel.Fuel
-import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
+import models._
+import play.api.db.slick._
 import slick.jdbc.JdbcProfile
 import slick.lifted.ProvenShape
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent._
 
-class CarAdvertDao @Inject()(val dbConfigProvider: DatabaseConfigProvider) extends HasDatabaseConfigProvider[JdbcProfile] {
+class CarAdvertsDao @Inject()(val dbConfigProvider: DatabaseConfigProvider) extends HasDatabaseConfigProvider[JdbcProfile] {
 
   import profile.api._
 
   implicit val localDateColumn: BaseColumnType[LocalDate] = MappedColumnType.base[LocalDate, String](_.toString, LocalDate.parse)
-  implicit val fuelColumn: BaseColumnType[Fuel] = MappedColumnType.base[Fuel, String](_.toString, Fuel.withName)
+  implicit val fuelColumn: BaseColumnType[Fuel] = MappedColumnType.base[Fuel, String](_.toString.toLowerCase, Fuel.apply)
 
   class CarAdverts(tag: Tag) extends Table[CarAdvert](tag, "CAR_ADVERT") {
     def id: Rep[Option[UUID]] = column[Option[UUID]]("ID", O.PrimaryKey)
@@ -56,7 +54,7 @@ class CarAdvertDao @Inject()(val dbConfigProvider: DatabaseConfigProvider) exten
     db.run(adverts.filter(_.id === id).update(a1))
   }
 
-  def createAdvert(a: CarAdvert): Future[CarAdvert] = {
+  def createAdvert(a: CarAdvert)(implicit executionContext: ExecutionContext): Future[CarAdvert] = {
     val a1 = a.copy(id = Some(UUID.randomUUID()))
     db.run(adverts += a1).map(_ => a1)
   }

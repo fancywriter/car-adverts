@@ -3,16 +3,16 @@ package controllers
 import java.util.UUID
 import javax.inject.Inject
 
-import dao.CarAdvertDao
+import dao.CarAdvertsDao
 import models.CarAdvert
-import play.api.data.validation.ValidationError
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
 import play.api.mvc._
+import formats.CarAdvertFormats._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class Application @Inject()(dao: CarAdvertDao) extends Controller {
+class CarAdvertsController @Inject()(dao: CarAdvertsDao, components: ControllerComponents)(implicit executionContext: ExecutionContext)
+  extends AbstractController(components) {
 
   def getAdverts(sort: String): Action[AnyContent] = Action.async {
     dao.getAdverts(sort).map(s => Ok(Json.toJson(s)))
@@ -22,13 +22,13 @@ class Application @Inject()(dao: CarAdvertDao) extends Controller {
     dao.getAdvert(id).map(_.fold(NotFound("Not Found"))(a => Ok(Json.toJson(a))))
   }
 
-  def createAdvert(): Action[JsValue] = Action.async(BodyParsers.parse.json) { request =>
+  def createAdvert(): Action[JsValue] = Action.async(components.parsers.json) { request =>
     request.body.validate[CarAdvert].fold(badRequest, { a: CarAdvert =>
       dao.createAdvert(a) map (x => Ok(Json.toJson(x)))
     })
   }
 
-  def modifyAdvert(id: UUID): Action[JsValue] = Action.async(BodyParsers.parse.json) { request =>
+  def modifyAdvert(id: UUID): Action[JsValue] = Action.async(components.parsers.json) { request =>
     request.body.validate[CarAdvert].fold(badRequest, { a: CarAdvert =>
       dao.modifyAdvert(id, a) map (x => Ok(Json.toJson(x)))
     })
@@ -38,6 +38,7 @@ class Application @Inject()(dao: CarAdvertDao) extends Controller {
     dao.deleteAdvert(id) map (x => Ok(Json.toJson(x)))
   }
 
-  private[this] def badRequest(errors: Seq[(JsPath, Seq[ValidationError])]) = Future(BadRequest(JsError.toJson(errors)))
+  private[this] def badRequest(errors: Seq[(JsPath, Seq[JsonValidationError])]) =
+    Future.successful(BadRequest(JsError.toJson(errors)))
 
 }

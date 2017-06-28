@@ -3,12 +3,13 @@ package utils
 import org.scalatest.TestData
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play._
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.{Application, Configuration}
 
 import scala.util.Random
 
-abstract class BaseSpec extends PlaySpec with ScalaFutures with OneAppPerTest {
+abstract class BaseSpec extends PlaySpec with ScalaFutures with GuiceOneAppPerTest {
 
   override def newAppForTest(td: TestData): Application = GuiceApplicationBuilder(
     configuration = Configuration(

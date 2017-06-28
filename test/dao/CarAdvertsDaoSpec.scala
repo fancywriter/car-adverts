@@ -10,11 +10,11 @@ import utils.BaseSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class CarAdvertDaoSpec extends BaseSpec {
+class CarAdvertsDaoSpec extends BaseSpec {
 
   implicit val patience = PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
 
-  def dao(implicit app: Application): CarAdvertDao = app.injector.instanceOf[CarAdvertDao]
+  def dao(implicit app: Application): CarAdvertsDao = app.injector.instanceOf[CarAdvertsDao]
 
   "CarAdvertDao" should {
 
