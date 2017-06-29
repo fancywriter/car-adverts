@@ -1,7 +1,7 @@
 language: scala
 
 scala:
-    - 2.11.11
+    - 2.12.2
 
 jdk:
     - oraclejdk8
@@ -11,3 +11,8 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+cache:
+  directories:
+    - "$HOME/.ivy2/cache"
+    - "$HOME/.sbt/boot/"
