@@ -2,17 +2,17 @@ package dao
 
 import java.time.LocalDate
 import java.util.UUID
-import javax.inject.Inject
 
 import models._
-import play.api.db.slick._
+import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import slick.lifted.ProvenShape
 
 import scala.concurrent._
 
-class CarAdvertsDao @Inject()(val dbConfigProvider: DatabaseConfigProvider) extends HasDatabaseConfigProvider[JdbcProfile] {
+class CarAdvertsDao(val config: DatabaseConfig[JdbcProfile]) {
 
+  import config._
   import profile.api._
 
   implicit val localDateColumn: BaseColumnType[LocalDate] = MappedColumnType.base[LocalDate, String](_.toString, LocalDate.parse)
@@ -33,7 +33,7 @@ class CarAdvertsDao @Inject()(val dbConfigProvider: DatabaseConfigProvider) exte
 
     def firstRegistration: Rep[Option[LocalDate]] = column[Option[LocalDate]]("FIRST_REGISTRATION")
 
-    override def * : ProvenShape[CarAdvert] = (id, title, fuel, price, `new`, mileage, firstRegistration) <>(CarAdvert.tupled, CarAdvert.unapply)
+    override def * : ProvenShape[CarAdvert] = (id, title, fuel, price, `new`, mileage, firstRegistration) <> (CarAdvert.tupled, CarAdvert.unapply)
   }
 
   private val adverts = TableQuery[CarAdverts]
@@ -54,9 +54,9 @@ class CarAdvertsDao @Inject()(val dbConfigProvider: DatabaseConfigProvider) exte
     db.run(adverts.filter(_.id === id).update(a1))
   }
 
-  def createAdvert(a: CarAdvert)(implicit executionContext: ExecutionContext): Future[CarAdvert] = {
+  def createAdvert(a: CarAdvert): Future[CarAdvert] = {
     val a1 = a.copy(id = Some(UUID.randomUUID()))
-    db.run(adverts += a1).map(_ => a1)
+    db.run(adverts += a1).map(_ => a1)(db.ioExecutionContext)
   }
 
   def deleteAdvert(id: UUID): Future[Int] = db.run(adverts.filter(_.id === id).delete)

@@ -3,53 +3,66 @@ package dao
 import java.time.LocalDate
 
 import models.{CarAdvert, Fuel}
+import org.scalatest.MustMatchers._
+import org.scalatest.OptionValues._
+import org.scalatest.WordSpec
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.enablers.Sortable
-import org.scalatest.time.{Millis, Seconds, Span}
+import org.scalatestplus.play.BaseOneAppPerTest
 import play.api.Application
-import utils.BaseSpec
+import utils.AppFactory
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class CarAdvertsDaoSpec extends BaseSpec {
+class CarAdvertsDaoSpec extends WordSpec with ScalaFutures with IntegrationPatience with AppFactory with BaseOneAppPerTest {
 
-  implicit val patience = PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
-
+  // TODO instantiate Dao in test directly
   def dao(implicit app: Application): CarAdvertsDao = app.injector.instanceOf[CarAdvertsDao]
 
   "CarAdvertDao" should {
 
     "return empty list" in {
-      whenReady(dao.getAdverts("title"))(adverts => adverts mustBe empty)
+      val f = dao.getAdverts("title")
+      f.futureValue mustBe empty
     }
 
     "create new advert" in {
       val advert = CarAdvert(None, "title", Fuel.Gasoline, 1000, `new` = false, None, None)
-      val f = dao.createAdvert(advert).flatMap(_ => dao.getAdverts("title"))
-      whenReady(f)(adverts => adverts must have length 1)
+      val f = for {
+        _ <- dao.createAdvert(advert)
+        r <- dao.getAdverts("title")
+      } yield r
+      f.futureValue must have length 1
     }
 
     "get advert by id" in {
       val advert = CarAdvert(None, "title", Fuel.Gasoline, 1000, `new` = false, None, None)
-      val f = dao.createAdvert(advert).flatMap(a => dao.getAdvert(a.id.get))
-      whenReady(f)(opt => opt.value.title mustEqual advert.title)
+      val f = for {
+        a <- dao.createAdvert(advert)
+        r <- dao.getAdvert(a.id.get)
+      } yield r
+      f.futureValue.value.title mustBe advert.title
     }
 
     "delete advert" in {
       val advert = CarAdvert(None, "title", Fuel.Gasoline, 1000, `new` = false, None, None)
-      val f = dao.createAdvert(advert)
-        .flatMap(a => dao.deleteAdvert(a.id.get))
-        .flatMap(_ => dao.getAdverts("title"))
-      whenReady(f) { adverts => adverts must be(empty) }
+      val f = for {
+        a <- dao.createAdvert(advert)
+        _ <- dao.deleteAdvert(a.id.get)
+        r <- dao.getAdverts("title")
+      } yield r
+      f.futureValue mustBe empty
     }
 
     "modify advert" in {
       val oldAdvert = CarAdvert(None, "oldtitle", Fuel.Gasoline, 1000, `new` = false, None, None)
       val newAdvert = oldAdvert.copy(title = "newtitle")
-      val f = dao.createAdvert(oldAdvert).flatMap { a =>
-        dao.modifyAdvert(a.id.get, newAdvert)
-          .flatMap(_ => dao.getAdvert(a.id.get))
-      }
-      whenReady(f)(opt => opt.value.title mustEqual newAdvert.title)
+      val f = for {
+        a <- dao.createAdvert(oldAdvert)
+        _ <- dao.modifyAdvert(a.id.get, newAdvert)
+        r <- dao.getAdvert(a.id.get)
+      } yield r
+      f.futureValue.value.title mustBe newAdvert.title
     }
 
     "sort by price" in {
@@ -59,7 +72,7 @@ class CarAdvertsDaoSpec extends BaseSpec {
       val f1 = dao.createAdvert(advert1)
       val f2 = dao.createAdvert(advert2)
 
-      val f3 = for {
+      val f = for {
         _ <- f1
         _ <- f2
         x <- dao.getAdverts("price")
@@ -69,7 +82,7 @@ class CarAdvertsDaoSpec extends BaseSpec {
         override def isSorted(seq: Seq[CarAdvert]): Boolean = (seq, seq.tail).zipped.forall(_.price <= _.price)
       }
 
-      whenReady(f3) { adverts => adverts mustBe sorted }
+      f.futureValue mustBe sorted
     }
 
     "sort by mileage" in {
@@ -79,7 +92,7 @@ class CarAdvertsDaoSpec extends BaseSpec {
       val f1 = dao.createAdvert(advert1)
       val f2 = dao.createAdvert(advert2)
 
-      val f3 = for {
+      val f = for {
         _ <- f1
         _ <- f2
         x <- dao.getAdverts("mileage")
@@ -89,7 +102,7 @@ class CarAdvertsDaoSpec extends BaseSpec {
         override def isSorted(seq: Seq[CarAdvert]): Boolean = (seq, seq.tail).zipped.forall(_.mileage.value <= _.mileage.value)
       }
 
-      whenReady(f3)(adverts => adverts mustBe sorted)
+      f.futureValue mustBe sorted
     }
 
     "sort by first registration" in {
@@ -99,7 +112,7 @@ class CarAdvertsDaoSpec extends BaseSpec {
       val f1 = dao.createAdvert(advert1)
       val f2 = dao.createAdvert(advert2)
 
-      val f3 = for {
+      val f = for {
         _ <- f1
         _ <- f2
         x <- dao.getAdverts("firstRegistration")
@@ -110,9 +123,8 @@ class CarAdvertsDaoSpec extends BaseSpec {
           .forall((a1, a2) => a1.firstRegistration.value.compareTo(a2.firstRegistration.value) <= 0)
       }
 
-      whenReady(f3) { adverts => adverts mustBe sorted }
+      f.futureValue mustBe sorted
     }
 
   }
-
 }

@@ -2,15 +2,19 @@ package controllers
 
 import java.util.UUID
 
+import formats.CarAdvertFormats._
 import models._
+import org.scalatest.MustMatchers._
+import org.scalatest.OptionValues._
+import org.scalatest.WordSpec
+import org.scalatestplus.play._
 import play.api.http.MimeTypes
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.api.test._
-import utils.BaseSpec
-import formats.CarAdvertFormats._
+import utils.AppFactory
 
-class CarAdvertsControllerSpec extends BaseSpec {
+class CarAdvertsControllerSpec extends WordSpec with AppFactory with BaseOneAppPerTest with WsScalaTestClient {
 
   "Application" should {
 
