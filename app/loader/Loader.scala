@@ -1,5 +1,7 @@
 package loader
 
+import actors.EventsHub
+import akka.actor.{ActorRef, ActorSystem}
 import controllers.{AssetsComponents, CarAdvertsController}
 import dao.CarAdvertsDao
 import play.api.db.DBApi
@@ -33,7 +35,11 @@ class Components(context: ApplicationLoader.Context)
 
   lazy val carAdvertsDao = new CarAdvertsDao(slickApi.dbConfig(DbName("default")))
 
-  lazy val carAdvertsController = new CarAdvertsController(carAdvertsDao, controllerComponents)
+  implicit def system: ActorSystem = actorSystem
+
+  lazy val eventsHub: ActorRef = system.actorOf(EventsHub.props)
+
+  lazy val carAdvertsController = new CarAdvertsController(carAdvertsDao, eventsHub, controllerComponents)
 
   override def router: Router = new Routes(httpErrorHandler, carAdvertsController, assets)
 }
