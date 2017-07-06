@@ -36,10 +36,10 @@ class CarAdvertsDao(val config: DatabaseConfig[JdbcProfile]) {
     override def * : ProvenShape[CarAdvert] = (id, title, fuel, price, `new`, mileage, firstRegistration) <> (CarAdvert.tupled, CarAdvert.unapply)
   }
 
-  private val adverts = TableQuery[CarAdverts]
+  val CarAdverts: TableQuery[CarAdverts] = TableQuery[CarAdverts]
 
   def getAdverts(sort: String): Future[Seq[CarAdvert]] =
-    db.run(adverts.sortBy(x => sort match {
+    db.run(CarAdverts.sortBy(x => sort match {
       case "title" => x.title.asc
       case "price" => x.price.asc
       case "mileage" => x.mileage.asc
@@ -47,18 +47,18 @@ class CarAdvertsDao(val config: DatabaseConfig[JdbcProfile]) {
       case _ => x.id.asc
     }).result)
 
-  def getAdvert(id: UUID): Future[Option[CarAdvert]] = db.run(adverts.filter(_.id === id).result.headOption)
+  def getAdvert(id: UUID): Future[Option[CarAdvert]] = db.run(CarAdverts.filter(_.id === id).result.headOption)
 
   def modifyAdvert(id: UUID, a: CarAdvert): Future[Int] = {
     val a1 = a.copy(id = Some(id))
-    db.run(adverts.filter(_.id === id).update(a1))
+    db.run(CarAdverts.filter(_.id === id).update(a1))
   }
 
   def createAdvert(a: CarAdvert): Future[CarAdvert] = {
     val a1 = a.copy(id = Some(UUID.randomUUID()))
-    db.run(adverts += a1).map(_ => a1)(db.ioExecutionContext)
+    db.run(CarAdverts += a1).map(_ => a1)(db.ioExecutionContext)
   }
 
-  def deleteAdvert(id: UUID): Future[Int] = db.run(adverts.filter(_.id === id).delete)
+  def deleteAdvert(id: UUID): Future[Int] = db.run(CarAdverts.filter(_.id === id).delete)
 
 }

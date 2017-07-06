@@ -8,7 +8,6 @@ import play.api.db.DBApi
 import play.api.db.evolutions.EvolutionsComponents
 import play.api.db.slick.evolutions.SlickDBApi
 import play.api.db.slick.{DbName, SlickComponents}
-import play.api.inject.{NewInstanceInjector, SimpleInjector}
 import play.api.routing.Router
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext}
 import play.filters.HttpFiltersComponents
@@ -25,10 +24,6 @@ class Components(context: ApplicationLoader.Context)
     with EvolutionsComponents
     with SlickComponents {
 
-  // TODO remove this after rewriting CarAdvertsDaoSpec
-  override lazy val injector: SimpleInjector = new SimpleInjector(NewInstanceInjector) + carAdvertsDao
-
-  // SlickEvolutionsComponents
   lazy val dbApi: DBApi = SlickDBApi(slickApi)
 
   applicationEvolutions
